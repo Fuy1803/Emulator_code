@@ -1,0 +1,38 @@
+name: Build AngelChipEmulator JAR
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unzip source if needed
+        run: |
+          if [ ! -f pom.xml ] && [ -f AngelChipEmulator_PureJava.zip ]; then
+            unzip -q -o AngelChipEmulator_PureJava.zip
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build runnable JAR
+        run: |
+          if [ -d AngelChipEmulator_PureJava ]; then cd AngelChipEmulator_PureJava; fi
+          mvn -B -DskipTests clean package
+
+      - name: Upload AngelChipEmulator_PureJava.jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: AngelChipEmulator_PureJava
+          path: "**/target/AngelChipEmulator_PureJava.jar"
+          if-no-files-found: error
