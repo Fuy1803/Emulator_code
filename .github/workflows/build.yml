@@ -15,12 +15,17 @@ jobs:
 
       - name: Unzip source if needed
         run: |
-          if [ ! -f pom.xml ] && [ -f AngelChipEmulator_PureJava.zip ]; then
+          if [ ! -d src/main/java ] && [ -f AngelChipEmulator_PureJava.zip ]; then
             unzip -q -o AngelChipEmulator_PureJava.zip
           fi
+          for f in AngelChipEmulator_PureJava/src/main/java/javax/microedition/lcdui/Display.java src/main/java/javax/microedition/lcdui/Display.java; do
+            if [ -f "$f" ]; then
+              sed -i 's/^\([[:space:]]*\)void repaint(Displayable d, int x, int y, int width, int height)/\1public void repaint(Displayable d, int x, int y, int width, int height)/' "$f"
+            fi
+          done
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
